@@ -21,13 +21,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+
 import org.apache.rocketmq.common.MixAll;
 
 public class BrokerData implements Comparable<BrokerData> {
     private String cluster;
     private String brokerName;
     private HashMap<Long/* brokerId */, String/* broker address */> brokerAddrs;
-
+    // 随机，作用是当获取broker地址时，master不可用时，随机选择slave的
     private final Random random = new Random();
 
     public BrokerData() {
