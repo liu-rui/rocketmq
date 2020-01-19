@@ -20,6 +20,9 @@ package org.apache.rocketmq.common;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * 线程工厂，用于自定义线程的名称，便于调试，线程的名称格式为：线程前缀 + 编号。创建线程池时作为参数传入。
+ */
 public class ThreadFactoryImpl implements ThreadFactory {
     private final AtomicLong threadIndex = new AtomicLong(0);
     private final String threadNamePrefix;

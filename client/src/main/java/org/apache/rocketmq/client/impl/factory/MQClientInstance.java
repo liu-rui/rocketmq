@@ -256,14 +256,14 @@ public class MQClientInstance {
             }
         }
     }
-
+    //启动定时任务
     private void startScheduledTask() {
         if (null == this.clientConfig.getNamesrvAddr()) {
             this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
                 @Override
                 public void run() {
-                    try {
+                    try {//TODO ?
                         MQClientInstance.this.mQClientAPIImpl.fetchNameServerAddr();
                     } catch (Exception e) {
                         log.error("ScheduledTask fetchNameServerAddr exception", e);
@@ -276,7 +276,7 @@ public class MQClientInstance {
 
             @Override
             public void run() {
-                try {
+                try {//访问nameserver，更新topic对应的路由信息
                     MQClientInstance.this.updateTopicRouteInfoFromNameServer();
                 } catch (Exception e) {
                     log.error("ScheduledTask updateTopicRouteInfoFromNameServer exception", e);
@@ -288,7 +288,7 @@ public class MQClientInstance {
 
             @Override
             public void run() {
-                try {
+                try {//对所有的brokder发送心跳
                     MQClientInstance.this.cleanOfflineBroker();
                     MQClientInstance.this.sendHeartbeatToAllBrokerWithLock();
                 } catch (Exception e) {
@@ -313,7 +313,7 @@ public class MQClientInstance {
 
             @Override
             public void run() {
-                try {
+                try {//调整消息消费服务线程池配置，看了代码，目前不起作用
                     MQClientInstance.this.adjustThreadPool();
                 } catch (Exception e) {
                     log.error("ScheduledTask adjustThreadPool exception", e);
@@ -330,7 +330,7 @@ public class MQClientInstance {
         Set<String> topicList = new HashSet<String>();
 
         // Consumer
-        {
+        {//针对消费者,从订阅中获取所有的topic
             Iterator<Entry<String, MQConsumerInner>> it = this.consumerTable.entrySet().iterator();
             while (it.hasNext()) {
                 Entry<String, MQConsumerInner> entry = it.next();
@@ -347,7 +347,7 @@ public class MQClientInstance {
         }
 
         // Producer
-        {
+        {//针对生产者，获取所有的topic
             Iterator<Entry<String, MQProducerInner>> it = this.producerTable.entrySet().iterator();
             while (it.hasNext()) {
                 Entry<String, MQProducerInner> entry = it.next();
