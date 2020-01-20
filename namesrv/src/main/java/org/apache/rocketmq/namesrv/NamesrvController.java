@@ -39,13 +39,16 @@ import org.apache.rocketmq.remoting.netty.TlsSystemConfig;
 import org.apache.rocketmq.srvutil.FileWatchService;
 
 
+/**
+ * nameserver 控制器
+ */
 public class NamesrvController {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
 
     private final NamesrvConfig namesrvConfig;
 
     private final NettyServerConfig nettyServerConfig;
-
+    //定时任务
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(
         "NSScheduledThread"));
     private final KVConfigManager kvConfigManager;
@@ -58,6 +61,7 @@ public class NamesrvController {
     private ExecutorService remotingExecutor;
 
     private Configuration configuration;
+    //当netty启动tls时，通过监听文件，当证书发生更改后自动加载
     private FileWatchService fileWatchService;
 
     public NamesrvController(NamesrvConfig namesrvConfig, NettyServerConfig nettyServerConfig) {
@@ -70,6 +74,7 @@ public class NamesrvController {
             log,
             this.namesrvConfig, this.nettyServerConfig
         );
+        //NamesrvConfig类中定义的获取configStorePath方法不是pubic,通过反射调用setAccessible（true）,关闭安全检查，提高性能
         this.configuration.setStorePathFromConfig(this.namesrvConfig, "configStorePath");
     }
 
@@ -81,9 +86,10 @@ public class NamesrvController {
 
         this.remotingExecutor =
             Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(), new ThreadFactoryImpl("RemotingExecutorThread_"));
-
+        //注册处理器
         this.registerProcessor();
 
+        //每隔10秒中扫描不活跃的broker
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override
@@ -91,7 +97,7 @@ public class NamesrvController {
                 NamesrvController.this.routeInfoManager.scanNotActiveBroker();
             }
         }, 5, 10, TimeUnit.SECONDS);
-
+        //每隔10分钟打印一次KV配置
         this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
 
             @Override

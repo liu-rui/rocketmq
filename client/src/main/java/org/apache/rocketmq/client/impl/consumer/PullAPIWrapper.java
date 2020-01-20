@@ -69,12 +69,13 @@ public class PullAPIWrapper {
 
     public PullResult processPullResult(final MessageQueue mq, final PullResult pullResult,
         final SubscriptionData subscriptionData) {
+        //解析拉取结果，将结果存到到pullResult的msgFoundList字段中
         PullResultExt pullResultExt = (PullResultExt) pullResult;
 
         this.updatePullFromWhichNode(mq, pullResultExt.getSuggestWhichBrokerId());
-        if (PullStatus.FOUND == pullResult.getPullStatus()) {
+        if (PullStatus.FOUND == pullResult.getPullStatus()) { // 有匹配的消息
             ByteBuffer byteBuffer = ByteBuffer.wrap(pullResultExt.getMessageBinary());
-            List<MessageExt> msgList = MessageDecoder.decodes(byteBuffer);
+            List<MessageExt> msgList = MessageDecoder.decodes(byteBuffer); //解码，得到消息列表
 
             List<MessageExt> msgListFilterAgain = msgList;
             if (!subscriptionData.getTagsSet().isEmpty() && !subscriptionData.isClassFilterMode()) {

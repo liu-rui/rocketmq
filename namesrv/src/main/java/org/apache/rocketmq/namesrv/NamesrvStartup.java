@@ -19,12 +19,14 @@ package org.apache.rocketmq.namesrv;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
+
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -41,6 +43,9 @@ import org.apache.rocketmq.srvutil.ServerUtil;
 import org.apache.rocketmq.srvutil.ShutdownHookThread;
 import org.slf4j.LoggerFactory;
 
+/**
+ * nameserver启动类，程序入口
+ */
 public class NamesrvStartup {
 
     private static InternalLogger log;
@@ -72,7 +77,9 @@ public class NamesrvStartup {
         System.setProperty(RemotingCommand.REMOTING_VERSION_KEY, Integer.toString(MQVersion.CURRENT_VERSION));
         //PackageConflictDetect.detectFastjson();
 
-        Options options = ServerUtil.buildCommandlineOptions(new Options());
+        Options options = ServerUtil.buildCommandlineOptions(new Options()); //创建通用的命令行参数，支持h,n
+        //通过调用buildCommandlineOptions，添加nameserver项目特有的命令行参数，有c和p
+        //解析命令行，目前支持参数有h（帮助）,n(设置nameserver 地址),c(设置配置文件),p(打印所有配置)
         commandLine = ServerUtil.parseCmdLine("mqnamesrv", args, buildCommandlineOptions(options), new PosixParser());
         if (null == commandLine) {
             System.exit(-1);
@@ -136,13 +143,14 @@ public class NamesrvStartup {
         if (null == controller) {
             throw new IllegalArgumentException("NamesrvController is null");
         }
-
+        //TODO  重要！！   初始化
         boolean initResult = controller.initialize();
         if (!initResult) {
             controller.shutdown();
             System.exit(-3);
         }
 
+        //优雅退出，退出的时候执行下shutdown
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(log, new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -150,7 +158,7 @@ public class NamesrvStartup {
                 return null;
             }
         }));
-
+        //TODO  重要！！  启动
         controller.start();
 
         return controller;

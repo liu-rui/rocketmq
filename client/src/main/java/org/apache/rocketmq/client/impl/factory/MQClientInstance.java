@@ -243,7 +243,7 @@ public class MQClientInstance {
                     // Start pull service
                     this.pullMessageService.start();
                     // Start rebalance service
-                    this.rebalanceService.start();
+                    this.rebalanceService.start(); //TODO 重点！！  启动均衡服务
                     // Start push service
                     this.defaultMQProducer.getDefaultMQProducerImpl().start(false);
                     log.info("the client factory [{}] start OK", this.clientId);
@@ -256,6 +256,7 @@ public class MQClientInstance {
             }
         }
     }
+
     //启动定时任务
     private void startScheduledTask() {
         if (null == this.clientConfig.getNamesrvAddr()) {
@@ -359,7 +360,7 @@ public class MQClientInstance {
             }
         }
 
-        for (String topic : topicList) {
+        for (String topic : topicList) { //更新topic对应的路由信息
             this.updateTopicRouteInfoFromNameServer(topic);
         }
     }

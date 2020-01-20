@@ -67,7 +67,7 @@ import org.apache.rocketmq.store.PutMessageResult;
 import org.apache.rocketmq.store.config.BrokerRole;
 import org.apache.rocketmq.store.stats.BrokerStatsManager;
 
-public class PullMessageProcessor implements NettyRequestProcessor {
+public class PullMessageProcessor implements NettyRequestProcessor { // 客户端拉取模式处理器
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.BROKER_LOGGER_NAME);
     private final BrokerController brokerController;
     private List<ConsumeMessageHook> consumeMessageHookList;

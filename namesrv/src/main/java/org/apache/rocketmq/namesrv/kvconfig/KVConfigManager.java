@@ -28,6 +28,11 @@ import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 import org.apache.rocketmq.common.protocol.body.KVTable;
 import org.apache.rocketmq.namesrv.NamesrvController;
+
+/**
+ * kv配置管理器，存储路径在NamesrvConfig中的kvConfigPath设置
+ * 当添加，更新或者删除时，会持久化
+ */
 public class KVConfigManager {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
 
@@ -89,11 +94,12 @@ public class KVConfigManager {
 
     public void persist() {
         try {
+            //TODO 注意这里是读锁，由于改方法被putKVConfig或者deleteKVConfig调用，这两个方法已经申请到了写锁
             this.lock.readLock().lockInterruptibly();
             try {
                 KVConfigSerializeWrapper kvConfigSerializeWrapper = new KVConfigSerializeWrapper();
                 kvConfigSerializeWrapper.setConfigTable(this.configTable);
-
+                //将这个对象直接转换为json后保存到文件中，例如，有条数据 k:a,Value:b,Namespaece:nn,序列化后的结果为： {"configTable":{"nn":{"a":"b"}}}
                 String content = kvConfigSerializeWrapper.toJson();
 
                 if (null != content) {

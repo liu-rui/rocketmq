@@ -33,6 +33,10 @@ import org.apache.rocketmq.common.constant.LoggerName;
 import org.apache.rocketmq.logging.InternalLogger;
 import org.apache.rocketmq.logging.InternalLoggerFactory;
 
+/**
+ * 文件观察服务
+ * 目前的作用是：由于rocketmq底层通讯用的是netty,当开启tls时，通过此类监听证书文件变化，自动刷新netty
+ */
 public class FileWatchService extends ServiceThread {
     private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.COMMON_LOGGER_NAME);
 
